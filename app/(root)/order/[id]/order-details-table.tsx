@@ -56,6 +56,20 @@ const OrderDetailsTable = ({
     paidAt,
     deliveredAt,
   } = order;
+  const paymentMethodLabel =
+    paymentMethod === "CashOnDelivery"
+      ? "Cash On Delivery"
+      : paymentMethod === "ApplePay"
+      ? "Apple Pay"
+      : paymentMethod === "Stripe" ||
+        paymentMethod === "Visa" ||
+        paymentMethod === "Mastercard"
+      ? "Card (Visa / Mastercard)"
+      : paymentMethod;
+  const isCardPaymentMethod =
+    paymentMethod === "Stripe" ||
+    paymentMethod === "Visa" ||
+    paymentMethod === "Mastercard";
 
   const { toast } = useToast();
 
@@ -150,7 +164,7 @@ const OrderDetailsTable = ({
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Payment Method</h2>
-              <p>{paymentMethod}</p>
+              <p>{paymentMethodLabel}</p>
               {isPaid ? (
                 <Badge variant={"secondary"}>
                   Paid at {formatDateTime(paidAt!).dateTime}
@@ -254,12 +268,24 @@ const OrderDetailsTable = ({
                 </div>
               )}
 
-              {/* Stripe Payment */}
-              {!isPaid && paymentMethod === "Stripe" && stripeClientSecret && (
+              {/* Card Payments */}
+              {!isPaid && isCardPaymentMethod && stripeClientSecret && (
                 <StripePayment
                   priceInCents={Number(order.totalPrice) * 100}
                   orderId={order.id}
                   clientSecret={stripeClientSecret}
+                  mode="stripe"
+                  title="Card Checkout"
+                />
+              )}
+
+              {/* Apple Pay */}
+              {!isPaid && paymentMethod === "ApplePay" && stripeClientSecret && (
+                <StripePayment
+                  priceInCents={Number(order.totalPrice) * 100}
+                  orderId={order.id}
+                  clientSecret={stripeClientSecret}
+                  mode="applePay"
                 />
               )}
 

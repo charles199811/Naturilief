@@ -23,17 +23,32 @@ const OrderDetailsPage = async (props: {
   const session = await auth();
 
   let client_secret = null;
+  const isStripeBasedPayment =
+    order.paymentMethod === "Stripe" ||
+    order.paymentMethod === "Visa" ||
+    order.paymentMethod === "Mastercard" ||
+    order.paymentMethod === "ApplePay";
 
-  //Check if is not paid and using stripe
-  if (order.paymentMethod === "Stripe" && !order.isPaid) {
+  // Check if not paid and using a Stripe-powered method
+  if (isStripeBasedPayment && !order.isPaid) {
     //Init stripe instance
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
-    //Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
+    const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: Math.round(Number(order.totalPrice) * 100),
       currency: "USD",
       metadata: { orderId: order.id },
-    });
+    };
+
+    if (order.paymentMethod === "ApplePay") {
+      paymentIntentParams.automatic_payment_methods = { enabled: true };
+    } else {
+      paymentIntentParams.payment_method_types = ["card"];
+    }
+
+    //Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create(
+      paymentIntentParams
+    );
 
     client_secret = paymentIntent.client_secret;
   }

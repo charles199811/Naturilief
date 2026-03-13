@@ -38,6 +38,16 @@ const PlaceOrderPage = async () => {
   if (!user.paymentMethod) redirect("/payment-method");
 
   const userAddress = user.address as ShippingAddress;
+  const paymentMethodLabel =
+    user.paymentMethod === "CashOnDelivery"
+      ? "Cash On Delivery"
+      : user.paymentMethod === "ApplePay"
+      ? "Apple Pay"
+      : user.paymentMethod === "Stripe" ||
+        user.paymentMethod === "Visa" ||
+        user.paymentMethod === "Mastercard"
+      ? "Card (Visa / Mastercard)"
+      : user.paymentMethod;
 
   return (
     <>
@@ -64,7 +74,7 @@ const PlaceOrderPage = async () => {
           <Card>
             <CardContent className="p-4 gap-4">
               <h2 className="text-xl pb-4">Payment Method</h2>
-              <p>{user.paymentMethod}</p>
+              <p>{paymentMethodLabel}</p>
               <div className="mt-3">
                 <Link href="/payment-method">
                   <Button variant="outline"> Edit </Button>
