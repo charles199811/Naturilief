@@ -17,6 +17,12 @@ const Menu = () => {
     <div className="flex justify-end gap-3">
       <nav className="hidden md:flex w-full max-w-xs gap-1">
         <ModeToggle />
+        <Button asChild variant="ghost" className="hidden lg:inline-flex">
+          <Link href="/about-us">About</Link>
+        </Button>
+        <Button asChild variant="ghost" className="hidden lg:inline-flex">
+          <Link href="/contact-us">Contact</Link>
+        </Button>
         <Button asChild variant={"ghost"}>
           <Link href="/cart">
             <ShoppingCart /> Cart
@@ -36,6 +42,12 @@ const Menu = () => {
               <Link href="/cart">
                 <ShoppingCart /> Cart
               </Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/about-us">About Us</Link>
+            </Button>
+            <Button asChild variant="ghost">
+              <Link href="/contact-us">Contact Us</Link>
             </Button>
             <SheetDescription></SheetDescription>
             <Button asChild>
