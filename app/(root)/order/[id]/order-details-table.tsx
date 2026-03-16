@@ -62,7 +62,7 @@ const OrderDetailsTable = ({
       : paymentMethod === "ApplePay"
       ? "Apple Pay"
       : paymentMethod === "Stripe"
-      ? "Card (Stripe)"
+      ? "Visa / Mastercard"
       : paymentMethod;
   const isCardPaymentMethod = paymentMethod === "Stripe";
 

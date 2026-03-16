@@ -44,7 +44,7 @@ const PlaceOrderPage = async () => {
       : user.paymentMethod === "ApplePay"
       ? "Apple Pay"
       : user.paymentMethod === "Stripe"
-      ? "Card (Stripe)"
+      ? "Visa / Mastercard"
       : user.paymentMethod;
 
   return (
