@@ -25,8 +25,6 @@ const OrderDetailsPage = async (props: {
   let client_secret = null;
   const isStripeBasedPayment =
     order.paymentMethod === "Stripe" ||
-    order.paymentMethod === "Visa" ||
-    order.paymentMethod === "Mastercard" ||
     order.paymentMethod === "ApplePay";
 
   // Check if not paid and using a Stripe-powered method

@@ -61,15 +61,10 @@ const OrderDetailsTable = ({
       ? "Cash On Delivery"
       : paymentMethod === "ApplePay"
       ? "Apple Pay"
-      : paymentMethod === "Stripe" ||
-        paymentMethod === "Visa" ||
-        paymentMethod === "Mastercard"
-      ? "Card (Visa / Mastercard)"
+      : paymentMethod === "Stripe"
+      ? "Card (Stripe)"
       : paymentMethod;
-  const isCardPaymentMethod =
-    paymentMethod === "Stripe" ||
-    paymentMethod === "Visa" ||
-    paymentMethod === "Mastercard";
+  const isCardPaymentMethod = paymentMethod === "Stripe";
 
   const { toast } = useToast();
 

@@ -45,9 +45,7 @@ const PaymentMethodForm = ({
       case "ApplePay":
         return "Apple Pay";
       case "Stripe":
-      case "Visa":
-      case "Mastercard":
-        return "Card (Visa / Mastercard)";
+        return "Card (Stripe)";
       default:
         return paymentMethod;
     }
