@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   );
 
   //check for successful payment
-  if (event.type === "payment_intent.succeeded") {
+  if (event.type === "charge.succeeded") {
     const { object } = event.data;
 
     //Update order to be paid i n db
@@ -19,8 +19,8 @@ export async function POST(req: NextRequest) {
       orderId: object.metadata.orderId,
       paymentResult: {
         id: object.id,
-        status: object.status,
-        email_address: object.receipt_email!,
+        status: "COMPLETED",
+        email_address: object.billing_details.email!,
         pricePaid: (object.amount / 100).toFixed(),
       },
     });
