@@ -9,7 +9,7 @@ import {
   useStripe,
 } from "@stripe/react-stripe-js";
 import { useTheme } from "next-themes";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { formatCurreny } from "@/lib/utils";
 import { SERVER_URL } from "@/lib/constants";
@@ -24,7 +24,7 @@ const StripePayment = ({
 }: {
   priceInCents: number;
   orderId: string;
-  clientSecret: string;
+  clientSecret?: string | null;
   mode?: "stripe" | "applePay";
   title?: string;
 }) => {
@@ -33,6 +33,65 @@ const StripePayment = ({
   );
 
   const { theme, systemTheme } = useTheme();
+  const [resolvedClientSecret, setResolvedClientSecret] = useState<
+    string | null
+  >(clientSecret ?? null);
+  const [isLoadingClientSecret, setIsLoadingClientSecret] = useState(
+    mode === "applePay" && !clientSecret
+  );
+  const [clientSecretError, setClientSecretError] = useState("");
+
+  useEffect(() => {
+    setResolvedClientSecret(clientSecret ?? null);
+  }, [clientSecret]);
+
+  useEffect(() => {
+    if (mode !== "applePay" || resolvedClientSecret) return;
+
+    let isMounted = true;
+
+    const createApplePayPaymentIntent = async () => {
+      try {
+        setIsLoadingClientSecret(true);
+        setClientSecretError("");
+
+        const response = await fetch("/api/apple-pay/payment-intent", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderId }),
+        });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data?.message || "Unable to prepare Apple Pay");
+        }
+
+        if (typeof data.clientSecret !== "string" || !data.clientSecret) {
+          throw new Error("Missing client secret for Apple Pay");
+        }
+
+        if (!isMounted) return;
+        setResolvedClientSecret(data.clientSecret);
+      } catch (error) {
+        if (!isMounted) return;
+        setClientSecretError(
+          error instanceof Error
+            ? error.message
+            : "Unable to prepare Apple Pay"
+        );
+      } finally {
+        if (isMounted) {
+          setIsLoadingClientSecret(false);
+        }
+      }
+    };
+
+    createApplePayPaymentIntent();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [mode, orderId, resolvedClientSecret]);
 
   const StripeForm = () => {
     const stripe = useStripe();
@@ -163,10 +222,27 @@ const StripePayment = ({
     );
   };
 
+  if (!resolvedClientSecret) {
+    if (isLoadingClientSecret) {
+      return (
+        <div className="text-sm text-muted-foreground">
+          Preparing Apple Pay checkout...
+        </div>
+      );
+    }
+
+    return (
+      <div className="text-sm text-destructive">
+        {clientSecretError ||
+          "Unable to load payment details. Please refresh and try again."}
+      </div>
+    );
+  }
+
   return (
     <Elements
       options={{
-        clientSecret,
+        clientSecret: resolvedClientSecret,
         appearance: {
           theme:
             theme === "dark"

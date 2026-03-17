@@ -275,7 +275,7 @@ const OrderDetailsTable = ({
               )}
 
               {/* Apple Pay */}
-              {!isPaid && paymentMethod === "ApplePay" && stripeClientSecret && (
+              {!isPaid && paymentMethod === "ApplePay" && (
                 <StripePayment
                   priceInCents={Number(order.totalPrice) * 100}
                   orderId={order.id}
