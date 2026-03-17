@@ -23,25 +23,19 @@ const OrderDetailsPage = async (props: {
   const session = await auth();
 
   let client_secret = null;
-  const isStripeBasedPayment =
-    order.paymentMethod === "Stripe" ||
-    order.paymentMethod === "ApplePay";
+  const isCardPaymentMethod = order.paymentMethod === "Stripe";
 
-  // Check if not paid and using a Stripe-powered method
-  if (isStripeBasedPayment && !order.isPaid) {
+  // Create card payment intent on the server.
+  // Apple Pay uses its dedicated API route.
+  if (isCardPaymentMethod && !order.isPaid) {
     //Init stripe instance
     const stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string);
     const paymentIntentParams: Stripe.PaymentIntentCreateParams = {
       amount: Math.round(Number(order.totalPrice) * 100),
       currency: "USD",
       metadata: { orderId: order.id },
+      payment_method_types: ["card"],
     };
-
-    if (order.paymentMethod === "ApplePay") {
-      paymentIntentParams.automatic_payment_methods = { enabled: true };
-    } else {
-      paymentIntentParams.payment_method_types = ["card"];
-    }
 
     //Create payment intent
     const paymentIntent = await stripe.paymentIntents.create(
